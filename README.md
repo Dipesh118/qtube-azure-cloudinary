@@ -37,3 +37,6 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset
 - Upload via `/upload`
 - Browse on `/` and `/search`, comment/rate in video detail
 
+- [![Azure Static Web Apps CI/CD](https://github.com/Dipesh118/qtube-azure-cloudinary/actions/workflows/azure-static-web-apps-blue-rock-00f19c310.yml/badge.svg?branch=main)](https://github.com/Dipesh118/qtube-azure-cloudinary/actions/workflows/azure-static-web-apps-blue-rock-00f19c310.yml)
+
+
