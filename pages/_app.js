@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import Head from "next/head";
 import { useEffect, useState, createContext, useContext } from "react";
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
@@ -13,7 +14,7 @@ function NavBar() {
     <header>
       <nav className="container">
         <div className="row" style={{justifyContent: "space-between", width: "100%"}}>
-          <Link href="/" className="brand">QTube</Link>
+          <Link href="/" className="brand">DTok</Link>
           <div className="row">
             <Link className="pill" href="/">Dashboard</Link>
             <Link className="pill" href="/search">Search</Link>
@@ -46,6 +47,10 @@ export default function App({ Component, pageProps }) {
 
   return (
     <UserContext.Provider value={{ user, isCreator, setIsCreator }}>
+        <Head>
+          <title>DTok</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+         </Head>
       <NavBar />
       <main className="container"><Component {...pageProps} /></main>
     </UserContext.Provider>
