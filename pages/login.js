@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useUser } from "./_app";
 
 export default function Login() {
+  const router = useRouter();
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,6 +26,8 @@ export default function Login() {
       const isCreator = roleDoc.exists() && roleDoc.data().role === "creator";
       localStorage.setItem("qtube_is_creator", isCreator ? "true" : "false");
       setIsCreator(isCreator);
+      // redirect home after successful auth
+      router.push("/");
     } catch (err) {
       setError(err.message);
     }
@@ -47,7 +51,7 @@ export default function Login() {
         {isRegister ? "Have an account? Sign in" : "New here? Create account"}
       </button>
       <p className="muted" style={{marginTop: 8}}>
-        Note: Teachers enrol creators by adding their UID to Firestore collection <code>roles</code> as <code>{"{ role: 'creator' }"}</code>.
+        Note: Developers enrol creators by adding their UID to Firestore collection <code>roles</code> as <code>{"{ role: 'creator' }"}</code>.
       </p>
     </div>
   );
