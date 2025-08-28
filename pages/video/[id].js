@@ -28,33 +28,36 @@ export default function VideoDetail() {
     })();
   }, [id]);
 
-  async function postComment(e) {
-    e.preventDefault();
-    if (!user) return alert("Sign in to comment");
+async function postComment(e) {
+  e.preventDefault();
+  if (!user) { alert("Sign in to comment"); return; }
 
-  //call Azure sentiment (safe fallback to neutral)
-    let senti = { label: "neutral", scores: { positive: 0, neutral: 1, negative: 0 } };
-    try {
-     const r = await fetch(process.env.NEXT_PUBLIC_SENTIMENT_URL, {
-     method: "POST",
-     headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({ text: myComment })
-   });
-   if (r.ok) senti = await r.json();
- } catch {}
-    
-    await addDoc(collection(db, "videos", id, "comments"), {
-      text: myComment,
-      userId: user.uid,
-      createdAt: serverTimestamp()
-      sentiment: senti.label,
-      sentimentScores: senti.scores
+  // Call Azure sentiment (fallback to neutral)
+  let senti = { label: "neutral", scores: { positive: 0, neutral: 1, negative: 0 } };
+  try {
+    const r = await fetch(process.env.NEXT_PUBLIC_SENTIMENT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: myComment })
     });
-    setMyComment("");
-    const q = query(collection(db, "videos", id, "comments"), orderBy("createdAt", "desc"));
-    const csnap = await getDocs(q);
-    setComments(csnap.docs.map(d => ({ id: d.id, ...d.data() })));
+    if (r.ok) senti = await r.json();
+  } catch (err) {
+    console.error("sentiment error", err);
   }
+
+  // Save comment with sentiment
+  await addDoc(collection(db, "videos", id, "comments"), {
+    text: myComment,
+    userId: user.uid,
+    createdAt: serverTimestamp(),
+    sentiment: senti.label,
+    sentimentScores: senti.scores
+  });
+
+  setMyComment("");
+  // reload comments if you have a loader
+  if (typeof loadComments === "function") await loadComments();
+}
 
   async function postRating(value) {
     if (!user) return alert("Sign in to rate");
@@ -86,15 +89,15 @@ export default function VideoDetail() {
         <button type="submit">Post</button>
       </form>
       <div className="spacer" />
-      {comments.map(c => (
-        <div key={c.id} className="card" style={{marginBottom: 8}}>
-          <p>{c.text}</p>
-          <p className="muted" style={{ fontSize: 12 }}>
-            {c.userId}
-            {c.sentiment && <span className="pill" style={{ marginLeft: 8 }}>{c.sentiment}</span>}
-          </p>
-        </div>
-      ))}
+{comments.map(c => (
+  <div key={c.id} className="card" style={{ marginBottom: 8 }}>
+    <p>{c.text}</p>
+    <p className="muted" style={{ fontSize: 12 }}>
+      {c.userId}
+      {c.sentiment && <span className="pill" style={{ marginLeft: 8 }}>{c.sentiment}</span>}
+    </p>
+  </div>
+))}
     </div>
   );
 }
