@@ -28,6 +28,12 @@ export default function VideoDetail() {
     })();
   }, [id]);
 
+  async function loadComments() {
+  const q = query(collection(db, "videos", id, "comments"), orderBy("createdAt", "desc"));
+  const csnap = await getDocs(q);
+  setComments(csnap.docs.map(d => ({ id: d.id, ...d.data() })));
+}
+
 async function postComment(e) {
   e.preventDefault();
   if (!user) { alert("Sign in to comment"); return; }
@@ -75,6 +81,19 @@ async function postComment(e) {
       <h1>{video.title}</h1>
       <p className="muted">Publisher: {video.publisher || "Unknown"} • Producer: {video.producer || "Unknown"} • Genre: {video.genre || "General"} • Age: {video.ageRating || "PG"}</p>
       <video src={video.videoUrl} controls style={{width:"100%", maxHeight: "70vh"}} />
+
+  {video.transcriptShort && (
+  <>
+    <div className="spacer" />
+    <div className="card">
+      <strong>Transcript (first 60s):</strong>
+      <p className="muted" style={{ whiteSpace: "pre-wrap" }}>
+        {video.transcriptShort}
+      </p>
+    </div>
+  </>
+)}
+
       <div className="spacer" />
       <div className="row">
         <span className="pill">Average rating: {avgRating ?? "—"}</span>
