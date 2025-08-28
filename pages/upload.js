@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "./_app";
 import { auth, db } from "@/lib/firebase";
-import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -60,6 +60,21 @@ export default function Upload() {
         creatorId: user.uid,
         createdAt: serverTimestamp()
       });
+
+// Fire-and-forget: ask Azure Speech for a short transcript
+fetch(process.env.NEXT_PUBLIC_TRANSCRIBE_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ videoUrl: url })
+})
+  .then(r => r.json())
+  .then(async data => {
+    if (data?.text) {
+      await setDoc(doc(db, "videos", docRef.id), { transcriptShort: data.text }, { merge: true });
+    }
+  })
+  .catch(() => {});
+      
       router.push(`/video/${docRef.id}`);
     } catch (err) {
       setError(err.message);
