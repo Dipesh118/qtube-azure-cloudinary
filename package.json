@@ -1,0 +1,20 @@
+{
+  "name": "qtube-azure-cloudinary",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "firebase": "10.12.3",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "uuid": "9.0.1"
+  },
+  "engines": {
+    "node": ">=18 <=20"
+  }
+}
